@@ -2,7 +2,7 @@
 
 This repository is adapted from the code of the works [PaL: Program-Aided Language Model](https://github.com/reasoning-machines/pal) and [Program of Thoughts Prompting: Disentangling Computation from Reasoning for Numerical Reasoning Tasks](https://github.com/wenhuchen/Program-of-Thoughts). 
 
-![Model Framework](figures/framework-prompt.png)
+![Model Framework](analysis/framework-prompt.png)
 
 ## Requirements
 
