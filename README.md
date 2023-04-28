@@ -1,7 +1,5 @@
 # SelfEval-Guided Decoding for Multi-step Reasoning
 
-This repository is adapted from the code of the works [PaL: Program-Aided Language Model](https://github.com/reasoning-machines/pal) and [Program of Thoughts Prompting: Disentangling Computation from Reasoning for Numerical Reasoning Tasks](https://github.com/wenhuchen/Program-of-Thoughts). 
-
 ![Model Framework](analysis/framework-prompt.png)
 
 ## Requirements
@@ -32,6 +30,8 @@ We will later also release the results of running based on `text-davinci` models
 ## Running
 
 We show examples of how to run our method on different datasets in [`scripts`](scripts), like [the script for gsm8k](scripts/run_generation_gsm8k.sh).
+
+<sub><sup>[crt] This repository is adapted from the code of the works [PaL: Program-Aided Language Model](https://github.com/reasoning-machines/pal) and [Program of Thoughts Prompting: Disentangling Computation from Reasoning for Numerical Reasoning Tasks](https://github.com/wenhuchen/Program-of-Thoughts). </sup></sub>
 
 
 
