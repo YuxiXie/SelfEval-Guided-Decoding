@@ -26,14 +26,16 @@ For other datasets, please check the details of [prompt construction](src/utils/
 
 In the current version of our main method (in [`generate_code.py`](src/generate_code.py)), we adopt [`Codex`](https://openai.com/blog/openai-codex) as our backend LLM.
 However, OpenAI has discontinued public access to this model.
-To address this, you can either 1) apply for the [research access](https://openai.com/form/researcher-access-program) to `Codex` (`code-davinci-002`) to run our approach, or 2) utilize an alternative backbone `text-davinci-003`.
+To address this, you can either (1) apply for the [research access](https://openai.com/form/researcher-access-program) to `Codex` (`code-davinci-002`) to run our approach, or (2) utilize an alternative backbone `text-davinci-003`.
 We will later also release the results of running based on `text-davinci` models for reference.
-
 
 ## Running
 
-We show examples of how to run our method on different datasets in [`scripts`](scripts), like [the script for gsm8k](scripts/run_generation_gsm8k.sh).
+We show examples of how to run our method on different datasets in [`scripts`](scripts). Specifically, scripts with names starting with `run_generation_` are for running our methods with either PAL or CoT as basic prompting methods.
 
+## Post-Processing and Evaluating
+
+Please find in [`src/execute_and_evaluate`](src/execute_and_evaluate/) how to extract and evaluate the outputs of different methods on different datasets. 
 
 ---
 <sub><sup>This repository is adapted from the code of the works [PaL: Program-Aided Language Model](https://github.com/reasoning-machines/pal) and [Program of Thoughts Prompting: Disentangling Computation from Reasoning for Numerical Reasoning Tasks](https://github.com/wenhuchen/Program-of-Thoughts). </sup></sub>

@@ -1,7 +1,7 @@
 import sys
 import regex
 
-sys.path.append('/home/yuxi/Projects/SelfEvaluation_BeamSearch_MWP/src')
+sys.path.append('/home/yuxi/Projects/SelfEval-Guided-Decoding/src')
 from utils.tool import *
 from utils.dataset import jsonlines_load, jsonlines_dump
 from execute_and_evaluate.interpret_and_evaluate import check_eq

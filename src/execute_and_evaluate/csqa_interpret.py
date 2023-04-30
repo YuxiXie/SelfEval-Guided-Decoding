@@ -1,7 +1,7 @@
 import sys
 import csv
 
-sys.path.append('/home/yuxi/Projects/SelfEvaluation_BeamSearch_MWP/src')
+sys.path.append('/home/yuxi/Projects/SelfEval-Guided-Decoding/src')
 from utils.tool import *
 from utils.dataset import jsonlines_load, jsonlines_dump
 

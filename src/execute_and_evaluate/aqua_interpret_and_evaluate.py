@@ -3,7 +3,7 @@ import openai
 from concurrent.futures import ProcessPoolExecutor as Pool
 from tenacity import wait_random_exponential, stop_after_attempt, retry
 
-sys.path.append('/home/yuxi/Projects/SelfEvaluation_BeamSearch_MWP/src')
+sys.path.append('/home/yuxi/Projects/SelfEval-Guided-Decoding/src')
 from utils.tool import *
 from utils.dataset import jsonlines_load, jsonlines_dump
 from prompts.aqua import choice_prompt
