@@ -9,6 +9,9 @@ from .tool import get_cp_ratio, aggregate_conf_and_prob
 
 
 class Beam:
+    '''
+        Conduct Step-wise Stochastic Beam Search
+    '''
     def __init__(self, size, cp_ratio, min_score=0.6,   # TODO: magic number
                  temperature=0.0, temperature_decay=-1.0, 
                  reject_sample=False, unbiased=False):
@@ -84,11 +87,10 @@ class Beam:
     
     def advance(self, preds, pred_probs, pred_confs, is_last_line, expl=None, normalize_prob=True):
         '''
-            preds / pred_probs / pred_confs / is_last_line / expl: 
+            preds / pred_probs / pred_confs / is_last_line / expl / normalize_prob: 
             [n_beam, n_sampling]
         '''
         # Label the duplicate predictions
-        # st = time()
         tmp, duplicate_set = {}, {}
         for i, prds in enumerate(preds):
             for j, prd in enumerate(prds):
@@ -101,7 +103,6 @@ class Beam:
         for k, v in tmp.items():
             kk = preds_indexes.index(k)
             duplicate_set[kk] = [preds_indexes.index(vv) for vv in v]
-        # print('@duplicate handling: {} seconds'.format(time() - st))
         
         # Accumulate length for those who hasn't finished yet
         if len(self.prev_ks):
@@ -184,10 +185,9 @@ class Beam:
                                                           replace=False, p=probs))
                 topk_beam_lk = [list(flat_beam_lk.items())[idx] for idx in topk_beam_idx]
             return topk_beam_lk
-        # st = time()
+        
         flat_beam_lk = self.flat(beam_lk)
         topk_beam_lk = _sample(flat_beam_lk)
-        # print('@sampling: {} seconds'.format(time() - st))
         
         next_finished = []
         for idx, _ in topk_beam_lk:
@@ -228,6 +228,9 @@ class Beam:
         return self._done
 
     def get_current_state(self, return_expl=False):
+        '''
+            return the existing states (kept candidate paths) within the beam
+        '''
         if len(self.next_ys):
             return_expl = return_expl and len(self.next_ys) == len(self.all_expls)
             instances = [[] for _ in self.next_ys[-1]]
@@ -247,6 +250,9 @@ class Beam:
         return [([], False, []) if return_expl else ([], False)]
 
     def get_step_scores(self):
+        '''
+            return the scores of existing states (kept candidate paths) within the beam
+        '''
         if not len(self.all_scores): return None
 
         ins_scores = [[] for _ in self.scores]

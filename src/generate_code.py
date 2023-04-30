@@ -14,6 +14,9 @@ from utils.Beam import Beam
 
 
 def parse_args():
+    '''
+        Parse Arguments
+    '''
     parser = argparse.ArgumentParser()
     ##=== input data ===##
     parser.add_argument("--dt_name", required=True, type=str, 
@@ -81,6 +84,23 @@ def parse_args():
 
 
 def generate_one_step(_input):
+    '''
+        Generate one step of beam searching
+        [input] 
+            - args: arguments
+            - init_instance
+            - keys
+            - num_of_lines
+            - prefix, prompt
+            - n
+        [output]
+            - prd: predicted step
+            - prd_p, prd_c: confidence scores
+            - ill: is last line? (bool)
+            - full_prd
+            - cmt
+            - raw_results
+    '''
     args, init_instance, keys, num_of_lines, prefix, prompt, n = _input
     ins, finished, _ = init_instance
     
@@ -152,7 +172,10 @@ def generate_one_step(_input):
     return (prd, prd_p, prd_c, ill, full_prd, cmt, raw_results,)
 
 
-def generate_code_beam_search(args, example, key=KEYS, index=-1):
+def generate_code_beam_search(args, example, key=[], index=-1):
+    '''
+        Beam Searching
+    '''
     start_time = time()
     
     ### ==================== Prepare Prompt ==================== ###
