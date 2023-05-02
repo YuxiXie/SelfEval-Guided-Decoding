@@ -1,6 +1,6 @@
 # SelfEval-Guided Decoding for Multi-step Reasoning
 
-This repository contains code and models for the paper: [Decomposition Enhances Reasoning via Self-Evaluation Guided Decoding](https://arxiv.org/abs/2305.00633). 
+This repository contains code and analysis for the paper: [Decomposition Enhances Reasoning via Self-Evaluation Guided Decoding](https://arxiv.org/abs/2305.00633). 
 Below is the framework of our proposed method (on the left) together with a prompting example of self-evaluation (on the right).
 
 ![Model Framework](analysis/framework-prompt.png)
