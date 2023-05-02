@@ -37,6 +37,19 @@ We show examples of how to run our method on different datasets in [`scripts`](s
 
 Please find in [`src/execute_and_evaluate`](src/execute_and_evaluate/) how to extract and evaluate the outputs of different methods on different datasets. 
 
+## Citation
+
+```
+@misc{xie2023decomposition,
+      title={Decomposition Enhances Reasoning via Self-Evaluation Guided Decoding}, 
+      author={Yuxi Xie and Kenji Kawaguchi and Yiran Zhao and Xu Zhao and Min-Yen Kan and Junxian He and Qizhe Xie},
+      year={2023},
+      eprint={2305.00633},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL}
+}
+```
+
 ---
 <sub><sup>This repository is adapted from the code of the works [PaL: Program-Aided Language Model](https://github.com/reasoning-machines/pal) and [Program of Thoughts Prompting: Disentangling Computation from Reasoning for Numerical Reasoning Tasks](https://github.com/wenhuchen/Program-of-Thoughts). </sup></sub>
 
