@@ -14,16 +14,17 @@ PS: please adjust the variables `dtname` and `split` to specify the dataset
 
 ## Baseline Running
 
+(main code: `src/generate_code_baseline.py`)
+
 - `arithmetic` reasoning -- [`run_baseline.sh`](run_baseline.sh)
-    * main code: `src/generate_code_baseline.py`
 
 - `symbolic` reasoning -- [`run_baseline_symbolic.sh`](run_baseline_symbolic.sh)
-    * main code: `src/generate_code.py`
 
 - `commonsense` reasoning -- [`run_baseline_commonsense.sh`](run_baseline_commonsense.sh)
-    * main code: `src/self_evaluate_code.py`
 
 ## Ours Running
+
+(main code: `src/generate_code.py`)
 
 - `arithmetic` reasoning
     * `GSM8K`: [Ours (PAL)](run_generation_gsm8k.sh), [Ours (CoT)](run_generation_gsm8k_cot.sh)
@@ -42,6 +43,8 @@ PS: please adjust the variables `dtname` and `split` to specify the dataset
     * `Sports Understanding`: [Ours (CoT)](run_generation_sports.sh)
 
 ## LLM Evaluation
+
+(main code: `src/self_evaluate_code.py`)
 
 Run [`run_self_evaluation.sh`](run_self_evaluation.sh)
 
