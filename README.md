@@ -5,6 +5,10 @@ Below is the framework of our proposed method (on the left) together with a prom
 
 ![Model Framework](analysis/framework-prompt.png)
 
+## What's New?
+* `07/2023`: Our algorithm of Guided Decoding is supported by [LLM-Reasoners](https://github.com/Ber666/llm-reasoners). You can utilize the library to better compare our method with other cutting-edge reasoning algorithms.
+* `05/2023`: First release of the SelfEval Guided Decoding [pipeline](https://github.com/YuxiXie/SelfEval-Guided-Decoding) and [preprint](https://arxiv.org/abs/2305.00633).
+
 ## Requirements
 
 #### Environment
