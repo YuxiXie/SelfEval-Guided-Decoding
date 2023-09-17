@@ -13,10 +13,8 @@ from utils.dataset import jsonlines_load
 def parse_args():
     parser = argparse.ArgumentParser()
     ##=== prompting hyperparameters ===##
-    parser.add_argument("--key", default='OPENAI_KEY', type=str)
     parser.add_argument("--model_name", default='meta-llama/Llama-2-13b-hf', type=str)
     parser.add_argument("--auth_token", default="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", type=str)
-    parser.add_argument("--keys", default=[], nargs='+', type=str)
     parser.add_argument("--temperature", default=0.0, type=float)
     parser.add_argument("--max_tokens", default=600, type=int)
     parser.add_argument("--top_p", default=1, type=int)
@@ -49,13 +47,6 @@ def parse_args():
     parser.add_argument("--resume", default=False, action='store_true')
     parser.add_argument("--resume_dt_string", default="", type=str)
     args = parser.parse_args()
-    
-    if not len(args.keys):
-        args.keys = [args.key]
-    num_key = len(args.keys)
-    args.keys = [args.key]
-    print('Using {} keys in total.'.format(len(args.keys)))
-    args.keys_used = {k: None for k in args.keys}
     
     args.prompts = get_prompts(args.dt_name, return_eval=False, use_chatgpt=args.chatgpt)
     
