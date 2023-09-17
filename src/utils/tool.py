@@ -1,6 +1,7 @@
 import os
 import math
 import regex
+import torch
 import random
 import string
 import jsonlines
@@ -20,7 +21,9 @@ from collections import Counter
 import matplotlib.pyplot as plt
 from sympy.solvers import solve
 from collections import defaultdict
+import torch.nn.functional as F
 from dateutil.relativedelta import relativedelta
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
 
 prod = lambda l: reduce(lambda x,y:x*y, l, 1)
@@ -240,48 +243,91 @@ def synthesize_program(result: str, prefix: str) -> str:
 
 
 ###===== OpenAI Result Parsing =====###
-def get_text_prob(tokens, token_logprobs, normalize_prob=True, use_pot=False, oneline=False):
+def get_text_prob(tokens, token_logprobs, normalize_prob=True, use_pot=False, oneline=False, llama=False):
     end_of_line = [regex.match(r'^[\n]+', t) is not None for t in tokens]
-    start_idx = end_of_line.index(True) if True in end_of_line else 0
-    logprobs, logprob, cur_line, lines = [], 0, [], []
+    start_idx = -1 if llama else (end_of_line.index(True) if True in end_of_line else 0)
+    logprobs, logprob, cur_line, lines = [], [], [], []
     for i, t, lp in zip(range(len(tokens)), tokens, token_logprobs):
         if i <= start_idx: continue
         if ''.join(tokens[start_idx + 1: i + 1]).count('\n\n' if use_pot else '\n\n\n'): break    # stop sign
         if ''.join(tokens[start_idx + 1: i + 1]).count('<|endoftext|>'): break    # stop sign
+        if ''.join(tokens[start_idx + 1: i + 1]).count('</s>'): break    # stop sign
         if oneline and ''.join(tokens[start_idx + 1: i + 1]).count('\n'): break
-        if (regex.match(r'\n$', tokens[i - 1]) or regex.match(r'^\n', t)) and logprob and ''.join(cur_line).replace('\n', ''):
-            logprobs.append(logprob)
+        if (i > 0 and (regex.match(r'\n$', tokens[i - 1])) or regex.match(r'^\n', t)) and logprob and ''.join(cur_line).replace('\n', ''):
+            logprobs.append(sum(logprob))
             lines.append(cur_line)
-            logprob, cur_line = 0, []
+            logprob, cur_line = [], []
         if regex.match(r'^[\n]+$', t): continue
         if '\n' in t[1:-1]:
             _ts = [_t for _t in t.split('\n') if _t]
             if len(_ts):
-                logprobs.append(logprob + lp)
+                logprobs.append(sum(logprob) + lp)
                 lines.append(cur_line + [_ts[0]])
-                logprob, cur_line = 0, []
+                logprob, cur_line = [], []
                 for _t in _ts[1:-1]:
                     logprobs.append(lp)
                     lines.append([_t])
                 if len(_ts) > 1: t = _ts[-1]
                 else: continue
             else: continue
-        logprob += lp
+        logprob += [lp]
         cur_line.append(t)
     if logprob and ''.join(cur_line).replace('\n', ''): 
-        logprobs.append(logprob)
+        logprobs.append(sum(logprob))
         lines.append(cur_line)
     return [((math.exp(lp), len(line)) if normalize_prob else math.exp(lp)) for lp, line in zip(logprobs, lines)], [''.join(l) for l in lines]
 
 
-def parse_api_result(result, return_prob=True, normalize_prob=True, use_pot=False, use_chatgpt=False):
+def gather_log_probabilities(logits: torch.Tensor, labels: torch.LongTensor) -> torch.Tensor:
+    """Gather log probabilities of the given labels from the logits."""
+    log_probs = F.log_softmax(logits.float(), dim=-1)
+    log_probs_labels = log_probs.gather(dim=-1, index=labels.unsqueeze(dim=-1))
+    return log_probs_labels.squeeze(dim=-1)
+
+
+@torch.no_grad()
+def get_llama_logits(generation, context, model, tokenizer):
+    context_ids = tokenizer(context, return_tensors="pt").input_ids
+    generation_ids = tokenizer(generation, return_tensors="pt").input_ids
+    input_ids = torch.cat((context_ids, generation_ids), dim=-1)
+    logits = model(input_ids.to(model.device)).logits
+    logprobs = gather_log_probabilities(logits[:, :-1], input_ids[:, 1:].to(model.device))[0][context_ids.size(-1) - 1:]
+    tokens = tokenizer.batch_decode(
+        generation_ids.squeeze(0).unsqueeze(1),
+        skip_special_tokens=True,
+    )
+    return tokens, logprobs.cpu().tolist()
+
+
+def parse_llama_result(result, contexts, stop_token, return_prob=False, model=None, tokenizer=None, normalize_prob=True):
+    to_return = []
+    for idx, g in enumerate(result):
+        context = contexts[idx] if isinstance(contexts, list) else contexts
+        g = g[len(context):].split(stop_token)[0]
+        text = g
+        if return_prob:
+            tokens, logprobs = get_llama_logits(g, context, model, tokenizer)
+            logprob = sum(logprobs)
+            prbs, lines = get_text_prob(tokens, logprobs, normalize_prob=normalize_prob, use_pot=False)
+            text = '\n'.join(lines)
+            to_return.append((text, logprob, prbs))
+        else:
+            to_return.append((text, None, None))
+    if return_prob:
+        to_return = sorted(to_return, key=lambda tup: tup[1], reverse=True)
+        return to_return
+    return [r[0] for r in to_return]
+
+
+def parse_api_result(result, return_prob=True, normalize_prob=True, use_pot=False, use_chatgpt=False, llama=False):
     to_return, return_prob = [], (return_prob and not use_chatgpt)
     for idx, g in enumerate(result['choices']):
         text = g['message']['content'] if use_chatgpt else g['text']
         logprob = -1 if use_chatgpt else sum(g['logprobs']['token_logprobs'])
         if return_prob:
             prbs, lines = get_text_prob(g['logprobs']['tokens'], g['logprobs']['token_logprobs'], 
-                                        normalize_prob=normalize_prob, use_pot=use_pot)
+                                        normalize_prob=normalize_prob, use_pot=use_pot,
+                                        llama=llama)
             text = '\n'.join(lines)
             to_return.append((text, logprob, prbs))
         elif use_chatgpt:
@@ -396,3 +442,23 @@ def get_eval_type(code, use_pot=False):
     if ' = ' in code and len(code.split(' = ')[-1].strip().split()) <= 1:
         return 'value'
     return 'calculation'
+
+
+def load_llama_model_and_tokenizer(model_name, auth_token):
+    tokenizer = AutoTokenizer.from_pretrained(
+        model_name, 
+        padding_side='left',
+        trust_remote_code=True,
+        use_auth_token=auth_token,
+    )
+    tokenizer.pad_token_id = tokenizer.eos_token_id
+    tokenizer.pad_token = tokenizer.eos_token
+    
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name,
+        use_auth_token=auth_token, 
+        torch_dtype=torch.float16, 
+        trust_remote_code=True,
+        device_map='auto',
+    )
+    return model, tokenizer

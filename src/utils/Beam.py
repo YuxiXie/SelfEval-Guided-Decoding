@@ -69,12 +69,14 @@ class Beam:
     def softmax(self, scores, step_id=0, normalize_scores=None):
         assert not self.unbiased or normalize_scores is not None, "should provide scores divided by LM probabilities if unbiased is on"
         if self.unbiased:
-            numerators = [math.exp(min(s, 2) / self.calculate_temperature(step_id)) for s in scores]    # TODO: magic number
+            # numerators = [math.exp(min(s, 2) / self.calculate_temperature(step_id)) for s in scores]    # TODO: magic number
+            numerators = [s ** (1 / self.calculate_temperature(step_id)) for s in scores]
             denominators = [(1 / p) * s for s, p in zip(numerators, normalize_scores)]
             # denominators = [math.exp(min(s, 2) / self.calculate_temperature(step_id)) for s in normalize_scores]    # TODO: magic number
             probs = [p / (sum(denominators) / max(len(denominators), 1)) for p in numerators]
         else:
-            probs = [math.exp(min(s, 2) / self.calculate_temperature(step_id)) for s in scores]    # TODO: magic number
+            # probs = [math.exp(min(s, 2) / self.calculate_temperature(step_id)) for s in scores]    # TODO: magic number
+            probs = [s ** (1 / self.calculate_temperature(step_id)) for s in scores]
             probs = [p / sum(probs) for p in probs]
         return probs
 
@@ -267,7 +269,7 @@ class Beam:
                 prev_scores = [(1, 1, (1, 0)) if normalize_prob else (1, 1, 1) for _ in prev_k]
             for j, cur_s, prv_s in zip(range(len(ins_scores)), cur_scores, prev_scores):
                 ins_scores[j].append(tuple(
-                    (sc / sp if isinstance(sc, float) else (sc[0] / sp[0], sc[1] - sp[1])) \
+                    (sc / max(sp, 1) if isinstance(sc, float) else (sc[0] / max(sp[0], 1), sc[1] - sp[1])) \
                         for sc, sp in zip(cur_s, prv_s)
                 ))
             cur_scores = prev_scores
