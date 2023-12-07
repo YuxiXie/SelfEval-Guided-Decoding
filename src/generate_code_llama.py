@@ -20,7 +20,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     ##=== input data ===##
     parser.add_argument("--model_name", default='meta-llama/Llama-2-70b-hf', type=str)
-    parser.add_argument("--auth_token", default="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", type=str)
+    parser.add_argument("--auth_token", default="HF_TOKEN", type=str)
     parser.add_argument("--dt_name", required=True, type=str,
                         choices=[
                             'gsm8k', 'aqua', 'svamp', 'asdiv', 'mawps', 'tabmwp', 'finqa',
