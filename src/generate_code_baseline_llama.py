@@ -14,7 +14,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     ##=== prompting hyperparameters ===##
     parser.add_argument("--model_name", default='meta-llama/Llama-2-13b-hf', type=str)
-    parser.add_argument("--auth_token", default="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", type=str)
+    parser.add_argument("--auth_token", default="HF_TOKEN", type=str)
     parser.add_argument("--temperature", default=0.0, type=float)
     parser.add_argument("--max_tokens", default=600, type=int)
     parser.add_argument("--top_p", default=1, type=int)
